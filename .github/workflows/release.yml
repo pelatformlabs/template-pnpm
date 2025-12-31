@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    paths:
+      - ".changeset/**"
+      - "packages/**"
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Git User
+        run: |
+          git config --global user.email "lukmanaviccena@gmail.com"
+          git config --global user.name "Lukman Aviccena"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Setup npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        id: build
+        continue-on-error: false
+        run: pnpm run build
+
+      - name: Lint
+        id: lint
+        continue-on-error: false
+        run: pnpm run lint:fix && pnpm run lint
+
+      - name: Create Release Pull Request or Publish to npm
+        if: steps.build.outcome == 'success' && steps.lint.outcome == 'success'
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm run version
+          title: "ci(changesets): :package: version packages"
+          commit: "ci(changesets): version packages"
+          publish: pnpm run release
+          setupGitUser: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_OPTIONS: --max-old-space-size=4096
