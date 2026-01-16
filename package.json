@@ -26,13 +26,13 @@
     "@changesets/cli": "^2.29.8",
     "@commitlint/config-conventional": "^20.3.1",
     "@pelatform/biome-config": "^0.1.5",
-    "@types/node": "^25.0.6",
-    "commitlint-plugin-function-rules": "^4.3.0",
+    "@types/node": "^25.0.9",
+    "commitlint-plugin-function-rules": "^4.3.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.0",
     "rimraf": "^6.1.2",
-    "turbo": "2.7.3",
+    "turbo": "2.7.4",
     "typescript": "^5.9.3"
   },
   "workspaces": [
