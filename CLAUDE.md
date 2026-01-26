@@ -6,15 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a pnpm monorepo template for building and publishing TypeScript/Node packages. It uses:
 
-- **pnpm** as the package manager (required: `pnpm >= 10.0.0`)
-- **Node.js** (required: `node >= 22`)
+- **pnpm** as the package manager (required: `pnpm >= 10.0.0`, currently using `pnpm@10.28.1`)
+- **Node.js** (required: `node >= 22`, CI uses Node 24)
 - **Turborepo** for task orchestration across workspaces
 - **Biome** for linting and formatting (extends `@pelatform/biome-config/base`)
 - **Changesets** for versioning and publishing
 - **Husky** for Git hooks
 - **Commitlint** with `@commitlint/config-conventional` for commit message linting
 
-**Important**: This project uses pnpm as the package manager (`packageManager: pnpm@10.27.0`). Always use `pnpm` commands instead of `npm` or `bun`.
+**Important**: This project uses pnpm as the package manager. Always use `pnpm` commands instead of `npm` or `bun`.
 
 ## Common Commands
 
@@ -125,13 +125,19 @@ The `turbo.json` defines task dependencies:
 
 GitHub Actions workflows:
 
-- **Lint** (`.github/workflows/lint.yml`): Runs on PRs to main. Builds, lints, and type-checks
+- **Lint** (`.github/workflows/lint.yml`):
+  - Runs on PRs to main
+  - Uses Node 24 with pnpm
+  - Runs: `pnpm install --frozen-lockfile`, `pnpm run build`, `pnpm run lint:fix && pnpm run lint`, `pnpm run types:check`
+
 - **Release** (`.github/workflows/release.yml`):
   - Triggered on pushes to main with changes in `.changeset/**` or `packages/**`
   - Configured git user: `Lukman Aviccena <lukmanaviccena@gmail.com>`
+  - Uses Node 24 with pnpm
   - Runs build and lint with `pnpm run lint:fix && pnpm run lint`
   - Uses `changesets/action@v1` to create release PRs or publish to npm
-  - Requires `NPM_TOKEN` and `GITHUB_TOKEN` secrets
+  - Requires `NPM_TOKEN` and `GITHUB_TOKEN` (or `GH_PAT`) secrets
+  - Sets `NODE_OPTIONS: --max-old-space-size=4096` for memory-intensive operations
 
 ## Commit Convention
 
@@ -151,10 +157,11 @@ Commitlint enforces conventional commits with types: `feat`, `feature`, `fix`, `
 Changesets is configured in `.changeset/config.json`:
 
 - Changelog generation uses `@changesets/changelog-github` for GitHub releases
+- Repository: `pelatformlabs/template`
 - Access level: `public` (packages are published to public npm)
 - Internal dependencies are bumped as `patch` versions
 - Base branch: `main`
-- Workspace protocol-only version bumping enabled
+- Workspace protocol-only version bumping enabled (`bumpVersionsWithWorkspaceProtocolOnly`)
 
 ## Publishing
 
@@ -166,3 +173,50 @@ The `scripts/publish.sh` script:
 4. Creates tags via `changeset tag`
 
 Requires `NPM_TOKEN` environment variable.
+
+## Git Hooks
+
+Husky is configured for pre-commit hooks via `pnpm prepare`. The pre-commit hook runs lint-staged which:
+
+- Runs Biome check with auto-fix on TypeScript/JavaScript files
+- Runs Prettier on Markdown/YAML files
+- Runs Biome format on JSON/HTML files
+
+This ensures code quality before commits are created.
+
+## Architecture Notes
+
+### Workspace Protocol
+
+Internal workspace dependencies must use the `workspace:*` protocol in package.json:
+
+```json
+{
+  "dependencies": {
+    "@pelatform/core": "workspace:*"
+  }
+}
+```
+
+This protocol:
+- Links to local workspace versions during development
+- Automatically resolves to published versions after `pnpm run version`
+- Is enforced by Changesets' `bumpVersionsWithWorkspaceProtocolOnly` setting
+
+### Turbo Task Execution
+
+Turbo executes tasks in parallel by default, respecting dependency graphs:
+
+- `build` tasks run topologically (dependencies before dependents)
+- `^build` means "all build tasks in workspace dependencies"
+- Use `--filter` to target specific workspaces
+- Turbo caches outputs based on inputs (files, env vars)
+
+Example:
+```bash
+# Build core and its dependencies
+pnpm run build --filter=@pelatform/core
+
+# Build all packages that depend on core
+pnpm run build --filter=...@pelatform/core
+```
