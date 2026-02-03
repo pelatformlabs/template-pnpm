@@ -199,6 +199,7 @@ Internal workspace dependencies must use the `workspace:*` protocol in package.j
 ```
 
 This protocol:
+
 - Links to local workspace versions during development
 - Automatically resolves to published versions after `pnpm run version`
 - Is enforced by Changesets' `bumpVersionsWithWorkspaceProtocolOnly` setting
@@ -213,6 +214,7 @@ Turbo executes tasks in parallel by default, respecting dependency graphs:
 - Turbo caches outputs based on inputs (files, env vars)
 
 Example:
+
 ```bash
 # Build core and its dependencies
 pnpm run build --filter=@pelatform/core
