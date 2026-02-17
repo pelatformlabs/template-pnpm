@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a pnpm monorepo template for building and publishing TypeScript/Node packages. It uses:
 
-- **pnpm** as the package manager (required: `pnpm >= 10.0.0`, currently using `pnpm@10.28.1`)
+- **pnpm** as the package manager (required: `pnpm >= 10.0.0`, currently using `pnpm@10.29.3`)
 - **Node.js** (required: `node >= 22`, CI uses Node 24)
 - **Turborepo** for task orchestration across workspaces
 - **Biome** for linting and formatting (extends `@pelatform/biome-config/base`)
@@ -39,6 +39,9 @@ pnpm run lint:fix
 
 # Format code with Biome
 pnpm run format
+
+# Check formatting without writing
+pnpm run format:check
 
 # Clean build artifacts
 pnpm run clean
@@ -87,7 +90,9 @@ examples/          # Example implementations
 └── vite/          # Vite example
 ```
 
-Workspaces are defined in both `package.json` and `pnpm-workspace.yaml`. Workspaces follow the pattern `packages/**`, `apps/**`, and `examples/**`, allowing for a flexible monorepo structure where `packages/` contains publishable libraries, `apps/` contains applications that consume those packages, and `examples/` contains reference implementations.
+**Note**: This is a template repository. Workspace directories (`packages/`, `apps/`, `examples/`) contain placeholder directories with `.gitkeep` files. You need to implement actual packages and applications.
+
+Workspaces are defined in both `package.json` (`packages/**`, `apps/**`) and `pnpm-workspace.yaml` (`packages/*`, `apps/*`, `examples/*`). The `**` pattern matches nested directories, while `*` matches only immediate children.
 
 **Internal Dependencies**: When a workspace depends on another workspace in the same monorepo, use the workspace protocol (e.g., `"@pelatform/core": "workspace:*"`) in `package.json`. This ensures pnpm uses the local version during development and automatically resolves to the correct version after publishing. The Changesets configuration enables `bumpVersionsWithWorkspaceProtocolOnly` to enforce this pattern.
 
@@ -186,6 +191,16 @@ This ensures code quality before commits are created.
 
 ## Architecture Notes
 
+### Package Manager Specification
+
+The root `package.json` specifies `"packageManager": "pnpm@10.29.3"`, which enforces this specific version of pnpm via Corepack. To enable Corepack:
+
+```bash
+corepack enable
+```
+
+If you encounter version mismatches, run `corepack prepare pnpm@10.29.3 --activate`.
+
 ### Workspace Protocol
 
 Internal workspace dependencies must use the `workspace:*` protocol in package.json:
@@ -203,6 +218,13 @@ This protocol:
 - Links to local workspace versions during development
 - Automatically resolves to published versions after `pnpm run version`
 - Is enforced by Changesets' `bumpVersionsWithWorkspaceProtocolOnly` setting
+
+### Workspace Pattern Behavior
+
+- **package.json workspaces**: Uses `packages/**` and `apps/**` (matches nested directories)
+- **pnpm-workspace.yaml**: Uses `packages/*`, `apps/*`, `examples/*` (matches immediate children only)
+
+When adding new workspaces, ensure they match at least one of these patterns. The `examples/` directory is only defined in `pnpm-workspace.yaml`, not in `package.json` workspaces.
 
 ### Turbo Task Execution
 
