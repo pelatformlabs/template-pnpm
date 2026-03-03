@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a pnpm monorepo template for building and publishing TypeScript/Node packages. It uses:
 
-- **pnpm** as the package manager (required: `pnpm >= 10.0.0`, currently using `pnpm@10.30.1`)
+- **pnpm** as the package manager (required: `pnpm >= 10.0.0`, currently using `pnpm@10.30.3`)
 - **Node.js** (required: `node >= 22`, CI uses Node 24)
 - **Turborepo** for task orchestration across workspaces
 - **Biome** for linting and formatting (extends `@pelatform/biome-config/base`)
@@ -34,13 +34,13 @@ pnpm run types:check
 # Lint (check only - runs biome check + turbo run lint)
 pnpm run lint
 
-# Lint with auto-fix (runs biome check --write --unsafe + turbo run lint -- --fix)
+# Lint (auto-fix - runs biome check --write --unsafe + turbo run lint -- --fix)
 pnpm run lint:fix
 
-# Format code with Biome
+# Format code with Biome (writes to files)
 pnpm run format
 
-# Check formatting without writing
+# Check formatting without writing (currently checks, not formats)
 pnpm run format:check
 
 # Clean build artifacts
@@ -90,11 +90,23 @@ examples/          # Example implementations
 └── vite/          # Vite example
 ```
 
-**Note**: This is a template repository. Workspace directories (`packages/`, `apps/`, `examples/`) contain placeholder directories with `.gitkeep` files. You need to implement actual packages and applications.
+**Note**: This is a template repository. Workspace directories contain placeholder directories with `.gitkeep` files:
+
+- `packages/` → `core/`, `main/` (example package locations)
+- `apps/` → `web/`, `docs/` (example application locations)
+- `examples/` → `next/`, `vite/` (example implementations)
+
+You need to implement actual packages and applications in these directories.
 
 Workspaces are defined in both `package.json` (`packages/**`, `apps/**`) and `pnpm-workspace.yaml` (`packages/*`, `apps/*`, `examples/*`). The `**` pattern matches nested directories, while `*` matches only immediate children.
 
-**Internal Dependencies**: When a workspace depends on another workspace in the same monorepo, use the workspace protocol (e.g., `"@pelatform/core": "workspace:*"`) in `package.json`. This ensures pnpm uses the local version during development and automatically resolves to the correct version after publishing. The Changesets configuration enables `bumpVersionsWithWorkspaceProtocolOnly` to enforce this pattern.
+**Internal Dependencies**: When a workspace depends on another workspace in the same monorepo, use the workspace protocol (e.g., `"@pelatform/core": "workspace:*"`) in `package.json`. This ensures:
+
+- pnpm uses the local version during development via symlink
+- After `pnpm run version`, Changesets replaces `workspace:*` with the actual published version
+- Published packages reference the correct versions from the npm registry
+
+The Changesets configuration enables `bumpVersionsWithWorkspaceProtocolOnly` to enforce this pattern and `updateInternalDependencies: "patch"` to bump internal dependency versions as patch changes.
 
 ## Turborepo Pipeline
 
@@ -138,10 +150,11 @@ GitHub Actions workflows:
 - **Release** (`.github/workflows/release.yml`):
   - Triggered on pushes to main with changes in `.changeset/**` or `packages/**`
   - Configured git user: `Lukman Aviccena <lukmanaviccena@gmail.com>`
-  - Uses Node 24 with pnpm
+  - Uses Node 24 with pnpm (note: CI uses Node 24 while `package.json` specifies `node >= 22`)
+  - Sets up `.npmrc` with `NPM_TOKEN` for publishing
   - Runs build and lint with `pnpm run lint:fix && pnpm run lint`
   - Uses `changesets/action@v1` to create release PRs or publish to npm
-  - Requires `NPM_TOKEN` and `GITHUB_TOKEN` (or `GH_PAT`) secrets
+  - Requires secrets: `NPM_TOKEN` (required), `GITHUB_TOKEN` (default), or `GH_PAT` (fallback)
   - Sets `NODE_OPTIONS: --max-old-space-size=4096` for memory-intensive operations
 
 ## Commit Convention
@@ -172,34 +185,36 @@ Changesets is configured in `.changeset/config.json`:
 
 The `scripts/publish.sh` script:
 
-1. Finds all `package.json` files under `packages/`
-2. Skips packages with `"private": true`
-3. Publishes each package with `pnpm publish --no-git-checks`
-4. Creates tags via `changeset tag`
+1. Finds all `package.json` files under `packages/` (excludes `node_modules`)
+2. For each package:
+   - Skips if `"private": true` in package.json
+   - Publishes with `pnpm publish --no-git-checks` (continues even if publish fails)
+3. Creates Git tags via `changeset tag`
 
-Requires `NPM_TOKEN` environment variable.
+Requires `NPM_TOKEN` environment variable. The script is designed to handle multiple packages and continues on individual publish failures.
 
 ## Git Hooks
 
 Husky is configured for pre-commit hooks via `pnpm prepare`. The pre-commit hook runs lint-staged which:
 
-- Runs Biome check with auto-fix on TypeScript/JavaScript files
-- Runs Prettier on Markdown/YAML files
-- Runs Biome format on JSON/HTML files
+- Runs Biome check with auto-fix on TypeScript/JavaScript files (`*.{js,jsx,ts,tsx,cjs,mjs,cts,mts}`)
+- Runs Prettier on Markdown/YAML files (`*.{md,yml,yaml}`)
+- Runs Biome format on JSON/HTML files (`*.{json,jsonc,html}`)
 
-This ensures code quality before commits are created.
+This ensures code quality before commits are created. All lint-staged commands use `--no-errors-on-unmatched` to avoid failing on empty match sets.
 
 ## Architecture Notes
 
 ### Package Manager Specification
 
-The root `package.json` specifies `"packageManager": "pnpm@10.30.1"`, which enforces this specific version of pnpm via Corepack. To enable Corepack:
+The root `package.json` specifies `"packageManager": "pnpm@10.30.3"`, which enforces this specific version of pnpm via Corepack. To enable Corepack:
 
 ```bash
 corepack enable
+corepack prepare pnpm@10.30.3 --activate
 ```
 
-If you encounter version mismatches, run `corepack prepare pnpm@10.30.1 --activate`.
+If you encounter version mismatches, ensure Corepack is enabled and the correct version is prepared.
 
 ### Workspace Protocol
 
