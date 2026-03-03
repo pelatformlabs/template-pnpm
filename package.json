@@ -25,7 +25,7 @@
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.30.0",
     "@commitlint/config-conventional": "^20.4.2",
-    "@pelatform/biome-config": "^0.1.5",
+    "@pelatform/biome-config": "^0.1.6",
     "@types/node": "^25.3.3",
     "commitlint-plugin-function-rules": "^4.3.2",
     "husky": "^9.1.7",
