@@ -24,15 +24,15 @@
     "@biomejs/biome": "^2.4.5",
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.30.0",
-    "@commitlint/config-conventional": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.3",
     "@pelatform/biome-config": "^0.1.6",
     "@types/node": "^25.3.3",
     "commitlint-plugin-function-rules": "^4.3.2",
     "husky": "^9.1.7",
-    "lint-staged": "^16.3.1",
+    "lint-staged": "^16.3.2",
     "prettier": "^3.8.1",
     "rimraf": "^6.1.3",
-    "turbo": "2.8.12",
+    "turbo": "2.8.13",
     "typescript": "^5.9.3"
   },
   "workspaces": [
