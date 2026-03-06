@@ -26,7 +26,7 @@
     "@changesets/cli": "^2.30.0",
     "@commitlint/config-conventional": "^20.4.3",
     "@pelatform/biome-config": "^0.1.6",
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.3.5",
     "commitlint-plugin-function-rules": "^4.3.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.2",
