@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a pnpm monorepo template for building and publishing TypeScript/Node packages. It uses:
 
-- **pnpm** as the package manager (required: `pnpm >= 10.0.0`, currently using `pnpm@10.30.3`)
+- **pnpm** as the package manager (required: `pnpm >= 10.0.0`, currently using `pnpm@10.31.0`)
 - **Node.js** (required: `node >= 22`, CI uses Node 24)
 - **Turborepo** for task orchestration across workspaces
 - **Biome** for linting and formatting (extends `@pelatform/biome-config/base`)
@@ -207,11 +207,11 @@ This ensures code quality before commits are created. All lint-staged commands u
 
 ### Package Manager Specification
 
-The root `package.json` specifies `"packageManager": "pnpm@10.30.3"`, which enforces this specific version of pnpm via Corepack. To enable Corepack:
+The root `package.json` specifies `"packageManager": "pnpm@10.31.0"`, which enforces this specific version of pnpm via Corepack. To enable Corepack:
 
 ```bash
 corepack enable
-corepack prepare pnpm@10.30.3 --activate
+corepack prepare pnpm@10.31.0 --activate
 ```
 
 If you encounter version mismatches, ensure Corepack is enabled and the correct version is prepared.
