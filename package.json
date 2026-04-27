@@ -21,25 +21,30 @@
   "author": "Lukman Aviccena <lukman@pelatform.com>",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.4.8",
+    "@biomejs/biome": "^2.4.13",
     "@changesets/changelog-github": "^0.6.0",
-    "@changesets/cli": "^2.30.0",
+    "@changesets/cli": "^2.31.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@pelatform/biome-config": "^0.1.6",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.6.0",
     "commitlint-plugin-function-rules": "^4.3.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.3",
     "rimraf": "^6.1.3",
-    "turbo": "2.8.20",
+    "turbo": "2.9.6",
     "typescript": "catalog:"
   },
-  "workspaces": [
-    "packages/**",
-    "examples/**",
-    "apps/**"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "examples/*",
+      "apps/*"
+    ],
+    "catalog": {
+      "typescript": "5.9.3"
+    }
+  },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,cjs,mjs,cts,mts}": "biome check --write --no-errors-on-unmatched",
     "*.{md,yml,yaml}": "prettier --write",
@@ -49,5 +54,5 @@
     "node": ">=22",
     "pnpm": ">=10.0.0"
   },
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@10.33.2"
 }
