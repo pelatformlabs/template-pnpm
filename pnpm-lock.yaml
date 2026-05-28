@@ -27,8 +27,8 @@ importers:
         specifier: ^21.0.1
         version: 21.0.1
       '@pelatform/biome-config':
-        specifier: ^0.1.6
-        version: 0.1.6(@biomejs/biome@2.4.16)
+        specifier: ^0.1.7
+        version: 0.1.7(@biomejs/biome@2.4.16)
       '@types/node':
         specifier: ^25.9.1
         version: 25.9.1
@@ -241,8 +241,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@pelatform/biome-config@0.1.6':
-    resolution: {integrity: sha512-fq7hrqQW5q2V3c6wHMpru9JDp1WZGvmFUkx3+AP6O4luFjrHuIkjmZkqQFy9I9PNfd+TrxnKOYXiimRbgMfoRg==}
+  '@pelatform/biome-config@0.1.7':
+    resolution: {integrity: sha512-cnrA27k9Q4jrRbUoZuwbqVNVha0easVBhjXFNajzOldbfCH9XqBRBTc0dvM5wY+EB8A9S4p8K2jkZA8CODKVag==}
     peerDependencies:
       '@biomejs/biome': '>=2.4.0'
 
@@ -1078,7 +1078,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@pelatform/biome-config@0.1.6(@biomejs/biome@2.4.16)':
+  '@pelatform/biome-config@0.1.7(@biomejs/biome@2.4.16)':
     dependencies:
       '@biomejs/biome': 2.4.16
 
