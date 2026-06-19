@@ -6,7 +6,7 @@ This template provides a ready-to-use setup for multi-package repositories with 
 
 ## Features
 
-- Monorepo workspaces: `packages/**`, `apps/**`, `examples/**`
+- Monorepo workspaces: `packages/*`, `apps/*`, `examples/*`
 - pnpm-first workflows: `pnpm install`, `pnpm run <script>`
 - Turborepo pipelines for `dev`, `build`, `start`, `types:check`
 - Biome-based lint and format with consistent project style
@@ -36,12 +36,19 @@ pnpm run lint:fix
 
 # Format code
 pnpm run format
+
+# Check formatting
+pnpm run format:check
+
+# Clean build artifacts
+pnpm run clean
 ```
 
 ## Workspace Layout
 
 - `packages/` – Each published or internal package lives here
 - `apps/` – Optional applications (e.g., docs, demos) consuming packages
+- `examples/` – Example implementations and usage demos
 
 Example package structure:
 
